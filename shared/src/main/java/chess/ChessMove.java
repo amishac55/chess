@@ -10,7 +10,12 @@ public class ChessMove {
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        this.getStartPosition = startPosition;
+        this.getEndPosition = endPosition;
+        this.getPromotionPiece = promotionPiece;
     }
+
+
 
     /**
      * @return ChessPosition of starting location
