@@ -11,7 +11,11 @@ import java.util.Arrays;
 public class ChessBoard {
     private ChessPiece[][] squares =  new ChessPiece[8][8];
     public ChessBoard() {
-
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                squares[r][c] = null;
+            }
+        }
     }
 
     /**
