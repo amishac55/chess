@@ -1,3 +1,4 @@
+
 package chess;
 import java.util.objects;
 import java.util.ArrayList;

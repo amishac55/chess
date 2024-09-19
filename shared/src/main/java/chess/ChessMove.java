@@ -1,4 +1,5 @@
 package chess;
+import java.util.Objects;
 
 /**
  * Represents moving a chess piece on a chessboard
@@ -42,4 +43,29 @@ public class ChessMove {
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ChessMove)) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        ChessMove other = (ChessMove) obj;
+        return compareFields(other);
+    }
+
+    private boolean compareFields(ChessMove other) {
+        return Objects.equals(this.startPosition, other.startPosition)
+                && Objects.equals(this.endPosition, other.endPosition)
+                && Objects.equals(this.promotionPiece, other.promotionPiece);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startPosition, endPosition, promotionPiece);
+    }
+
 }
