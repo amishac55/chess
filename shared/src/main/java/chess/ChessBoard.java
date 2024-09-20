@@ -1,5 +1,4 @@
 package chess;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -9,7 +8,7 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] squares =  new ChessPiece[8][8];
+    private ChessPiece[][] board =  new ChessPiece[8][8];
     public ChessBoard() {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
@@ -25,7 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        squares[position.getRow() -1][position.getColumn() -1] = piece;
+        board[position.getRow() -1][position.getColumn() -1] = piece;
     }
     /**
      * Gets a chess piece on the chessboard
@@ -35,7 +34,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow() -1][position.getColumn() -1];
+        return board[position.getRow() -1][position.getColumn() -1];
     }
 
     /**
