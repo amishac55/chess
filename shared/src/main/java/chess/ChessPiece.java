@@ -54,7 +54,7 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pieceMoves(chess.ChessBoard board, ChessPosition myPosition) {
 
         Collection<ChessMove> validMoves = new ArrayList<>();
         ChessPiece currentPiece = board.getPiece(myPosition);
@@ -90,7 +90,7 @@ public class ChessPiece {
         return validMoves;
     }
 
-    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
+    private Collection<ChessMove> getPawnMoves(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
         Collection<ChessMove> pawnMoves = new ArrayList<>();
         int forwardRow = (teamColor == ChessGame.TeamColor.WHITE) ? position.getRow() + 1 : position.getRow() - 1;
         int currentCol = position.getColumn();
@@ -121,7 +121,7 @@ public class ChessPiece {
         return pawnMoves;
     }
 
-    private void checkPawnAttack(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
+    private void checkPawnAttack(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
                                  Collection<ChessMove> pawnMoves, int forwardRow, int attackCol) {
         if (isValidPosition(forwardRow, attackCol)) {
             ChessPiece targetPiece = board.getPiece(new ChessPosition(forwardRow, attackCol));
@@ -150,7 +150,7 @@ public class ChessPiece {
     }
 
     //for Queen, Rook, Bishop
-    private Collection<ChessMove> getDirectionalMoves(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
+    private Collection<ChessMove> getDirectionalMoves(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
                                                       int... directions) {
         Collection<ChessMove> moves = new ArrayList<>();
         for (int i = 0; i < directions.length; i += 2) {
@@ -159,7 +159,7 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> getMovesInDirection(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
+    private Collection<ChessMove> getMovesInDirection(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor,
                                                       int rowDelta, int colDelta) {
         Collection<ChessMove> moves = new ArrayList<>();
         int row = position.getRow();
@@ -187,7 +187,7 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
+    private Collection<ChessMove> getKnightMoves(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
         Collection<ChessMove> knightMoves = new ArrayList<>();
         int[][] knightOffsets = {
                 {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
@@ -208,7 +208,7 @@ public class ChessPiece {
         return knightMoves;
     }
 
-    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
+    private Collection<ChessMove> getKingMoves(chess.ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
         Collection<ChessMove> kingMoves = new ArrayList<>();
         int[][] kingOffsets = {
                 {0, 1}, {0, -1}, {1, 0}, {-1, 0},

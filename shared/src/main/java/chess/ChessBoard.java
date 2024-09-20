@@ -13,7 +13,7 @@ public class ChessBoard {
     public ChessBoard() {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
-                squares[r][c] = null;
+                board[r][c] = null;
             }
         }
     }
@@ -100,6 +100,6 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(this.board);
     }
-    
+
 
 }
