@@ -8,7 +8,8 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] board =  new ChessPiece[8][8];
+    private ChessPiece[][] board = new ChessPiece[8][8];
+
     public ChessBoard() {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
@@ -24,8 +25,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow() -1][position.getColumn() -1] = piece;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -34,7 +36,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getRow() -1][position.getColumn() -1];
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -42,6 +44,15 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                this.board[r][c] = null;
+            }
+        }
+        // Initialize white pieces
+        initializePieces(ChessGame.TeamColor.WHITE, 0, 1);
+
+        // Initialize black pieces
+        initializePieces(ChessGame.TeamColor.BLACK, 7, 6);
     }
 }
