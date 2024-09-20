@@ -55,4 +55,37 @@ public class ChessBoard {
         // Initialize black pieces
         initializePieces(ChessGame.TeamColor.BLACK, 7, 6);
     }
+    private void placePiece(ChessGame.TeamColor color, ChessPiece.PieceType pieceType, int row, int col) {
+        board[row][col] = new ChessPiece(color, pieceType);
+    }
+    private void initializePieces(ChessGame.TeamColor color, int mainRow, int pawnRow) {
+        // Rooks
+        placePiece(color, ChessPiece.PieceType.ROOK, mainRow, 0);
+        placePiece(color, ChessPiece.PieceType.ROOK, mainRow, 7);
+
+        // Knights
+        placePiece(color, ChessPiece.PieceType.KNIGHT, mainRow, 1);
+        placePiece(color, ChessPiece.PieceType.KNIGHT, mainRow, 6);
+
+        // Bishops
+        placePiece(color, ChessPiece.PieceType.BISHOP, mainRow, 2);
+        placePiece(color, ChessPiece.PieceType.BISHOP, mainRow, 5);
+
+        // Queen
+        placePiece(color, ChessPiece.PieceType.QUEEN, mainRow, 3);
+
+        // King
+        placePiece(color, ChessPiece.PieceType.KING, mainRow, 4);
+
+        // Pawns
+        for (int col = 0; col < 8; col++) {
+            placePiece(color, ChessPiece.PieceType.PAWN, pawnRow, col);
+        }
+    }
+
+
+
+
+
+
 }
