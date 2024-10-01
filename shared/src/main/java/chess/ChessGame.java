@@ -16,7 +16,9 @@ public class ChessGame {
     private ChessBoard board;
 
     public ChessGame() {
-
+        this.color = TeamColor.WHITE;
+        this.board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
