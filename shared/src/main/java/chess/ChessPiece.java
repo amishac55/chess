@@ -12,7 +12,7 @@ import chess.ChessGame.TeamColor;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements Cloneable {
     private final TeamColor pieceColor;
     private final PieceType pieceType;
 
@@ -249,5 +249,15 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, pieceType);
+    }
+
+    @Override
+    public ChessPiece clone() {
+        try {
+            ChessPiece clone = (ChessPiece) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
