@@ -1,6 +1,9 @@
 package chess;
 
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,6 +12,8 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private TeamColor color;
+    private ChessBoard board;
 
     public ChessGame() {
 
