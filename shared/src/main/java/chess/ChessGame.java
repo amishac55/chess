@@ -53,7 +53,26 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+
+        ChessBoard board = getBoard();
+        ChessPiece piece = board.getPiece(startPosition);
+
+        if (piece == null) {
+            return Collections.emptyList(); // Return an empty list if piece is null
+        }
+
+        ChessBoard boardCopy = board.clone();
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(boardCopy, startPosition);
+        chess.ChessGame.TeamColor team = piece.getTeamColor();
+
+        List<ChessMove> validMoves = new ArrayList<>();
+        for (ChessMove move : possibleMoves) {
+            // Check if the move does not leave the team in check
+            if (!badMove(boardCopy, move, team)) {
+                validMoves.add(move);
+            }
+        }
+        return validMoves;
     }
 
     /**
