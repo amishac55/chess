@@ -75,6 +75,16 @@ public class ChessGame {
         return validMoves;
     }
 
+    private boolean badMove(ChessBoard board, ChessMove move, chess.ChessGame.TeamColor team) {
+        ChessBoard boardCopy = board.clone();
+        ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos = move.getEndPosition();
+        ChessPiece piece = boardCopy.getPiece(startPos);
+        boardCopy.addPiece(endPos, piece);
+        boardCopy.addPiece(startPos, null);
+
+        return isInCheck(team, boardCopy);
+    }
     /**
      * Makes a move in a chess game
      *
