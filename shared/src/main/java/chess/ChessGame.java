@@ -145,7 +145,7 @@ public class ChessGame {
         }
         return enemyMoves;
 
-        private ChessPosition findKing(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
+        private ChessPosition findKing(TeamColor teamColor, ChessBoard board) {
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
