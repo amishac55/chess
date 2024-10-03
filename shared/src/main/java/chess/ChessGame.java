@@ -103,10 +103,16 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+    public boolean isInCheck(chess.ChessGame.TeamColor teamColor) {
+
+        return isInCheck(teamColor, board);
     }
 
+    public boolean isInCheck(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
+        ChessPosition kingPosition = findKing(teamColor, board);
+        Set<ChessPosition> enemyMoves = getOpponentMoves(teamColor, board);
+        return enemyMoves.contains(kingPosition);
+    }
     public Set<ChessPosition> getOpponentMoves(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
         Set<ChessPosition> enemyMoves = new HashSet<>();
         for (int row = 1; row <= 8; row++) {
