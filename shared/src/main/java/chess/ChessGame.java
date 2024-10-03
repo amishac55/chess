@@ -1,9 +1,9 @@
 package chess;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
+
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -53,7 +53,6 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
         ChessBoard board = getBoard();
         ChessPiece piece = board.getPiece(startPosition);
 
@@ -86,7 +85,6 @@ public class ChessGame {
         return isInCheck(team, boardCopy);
     }
 
-
     /**
      * Makes a move in a chess game
      *
@@ -107,11 +105,9 @@ public class ChessGame {
         if (promotion != null) {
             piece = new ChessPiece(piece.getTeamColor(), promotion);
         }
-
         board.addPiece(endPos, piece);
         board.addPiece(startPos, null);
         setTeamTurn(getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
-
     }
 
     /**
@@ -121,7 +117,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
         return isInCheck(teamColor, board);
     }
 
@@ -143,81 +138,80 @@ public class ChessGame {
             }
         }
         return enemyMoves;
+    }
 
-        private ChessPosition findKing(TeamColor teamColor, ChessBoard board) {
-            for (int row = 1; row <= 8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                        return new ChessPosition(row, col);
+    private ChessPosition findKing(TeamColor teamColor, ChessBoard board) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return new ChessPosition(row, col);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determines if the given team is in checkmate
+     *
+     * @param teamColor which team to check for checkmate
+     * @return True if the specified team is in checkmate
+     */
+    public boolean isInCheckmate(TeamColor teamColor) {
+        if (!isInCheck(teamColor, board)) {
+            return false;
+        }
+
+        return isMoveAvailable(teamColor);
+    }
+
+
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(TeamColor teamColor) {
+        if (isInCheck(teamColor, board)) {
+            return false;
+        }
+        return isMoveAvailable(teamColor);
+    }
+
+    private boolean isMoveAvailable(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(new ChessPosition(row, col));
+                    if (!moves.isEmpty()) {
+                        return false;
                     }
                 }
             }
-            return null;
         }
+        return true;
+    }
 
-        /**
-         * Determines if the given team is in checkmate
-         *
-         * @param teamColor which team to check for checkmate
-         * @return True if the specified team is in checkmate
-         */
-        public boolean isInCheckmate (TeamColor teamColor){
-            if (!isInCheck(teamColor, board)) {
-                return false;
-            }
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        this.board = board;
+    }
 
-            return isMoveAvailable(teamColor);
-        }
-
-        /**
-         * Determines if the given team is in stalemate, which here is defined as having
-         * no valid moves
-         *
-         * @param teamColor which team to check for stalemate
-         * @return True if the specified team is in stalemate, otherwise false
-         */
-        public boolean isInStalemate (TeamColor teamColor){
-
-            if (isInCheck(teamColor, board)) {
-                return false;
-            }
-            return isMoveAvailable(teamColor);
-            ;
-        }
-
-
-        private boolean isMoveAvailable (TeamColor teamColor){
-            for (int row = 1; row <= 8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    if (piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> moves = validMoves(new ChessPosition(row, col));
-                        if (!moves.isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        /**
-         * Sets this game's chessboard with a given board
-         *
-         * @param board the new board to use
-         */
-        public void setBoard (ChessBoard board){
-            this.board = board;
-        }
-
-        /**
-         * Gets the current chessboard
-         *
-         * @return the chessboard
-         */
-        public ChessBoard getBoard () {
-            return this.board;
-        }
+    /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard() {
+        return this.board;
     }
 
     public String toString() {
