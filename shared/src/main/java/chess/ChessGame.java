@@ -188,7 +188,7 @@ public class ChessGame {
         }
 
 
-        private boolean isMoveAvailable (chess.ChessGame.TeamColor teamColor){
+        private boolean isMoveAvailable (TeamColor teamColor){
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
