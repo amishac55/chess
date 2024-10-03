@@ -63,7 +63,7 @@ public class ChessGame {
 
         ChessBoard boardCopy = board.clone();
         Collection<ChessMove> possibleMoves = piece.pieceMoves(boardCopy, startPosition);
-        chess.ChessGame.TeamColor team = piece.getTeamColor();
+        TeamColor team = piece.getTeamColor();
 
         List<ChessMove> validMoves = new ArrayList<>();
         for (ChessMove move : possibleMoves) {
@@ -75,7 +75,7 @@ public class ChessGame {
         return validMoves;
     }
 
-    private boolean badMove(ChessBoard board, ChessMove move, chess.ChessGame.TeamColor team) {
+    private boolean badMove(ChessBoard board, ChessMove move, TeamColor team) {
         ChessBoard boardCopy = board.clone();
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
@@ -101,8 +101,7 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        ChessPosition end
-        Pos = move.getEndPosition();
+        ChessPosition endPos = move.getEndPosition();
         ChessPiece.PieceType promotion = move.getPromotionPiece();
 
         if (promotion != null) {
