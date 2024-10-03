@@ -113,6 +113,7 @@ public class ChessGame {
         Set<ChessPosition> enemyMoves = getOpponentMoves(teamColor, board);
         return enemyMoves.contains(kingPosition);
     }
+
     public Set<ChessPosition> getOpponentMoves(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
         Set<ChessPosition> enemyMoves = new HashSet<>();
         for (int row = 1; row <= 8; row++) {
@@ -126,33 +127,34 @@ public class ChessGame {
         }
         return enemyMoves;
 
-    /**
-     * Determines if the given team is in checkmate
-     *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
-     */
-    public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
-    }
+        /**
+         * Determines if the given team is in checkmate
+         *
+         * @param teamColor which team to check for checkmate
+         * @return True if the specified team is in checkmate
+         */
+        public boolean isInCheckmate (TeamColor teamColor){
+            throw new RuntimeException("Not implemented");
+        }
 
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
+        /**
+         * Determines if the given team is in stalemate, which here is defined as having
+         * no valid moves
+         *
+         * @param teamColor which team to check for stalemate
+         * @return True if the specified team is in stalemate, otherwise false
+         */
+        public boolean isInStalemate (TeamColor teamColor){
 
-        if (isInCheck(teamColor, board)) {
+            if (isInCheck(teamColor, board)) {
                 return false;
             }
-            return isMoveAvailable(teamColor);;
-    }
+            return isMoveAvailable(teamColor);
+            ;
+        }
 
 
-    private boolean isMoveAvailable(chess.ChessGame.TeamColor teamColor) {
+        private boolean isMoveAvailable (chess.ChessGame.TeamColor teamColor){
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -166,21 +168,26 @@ public class ChessGame {
             }
             return true;
         }
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
+        /**
+         * Sets this game's chessboard with a given board
+         *
+         * @param board the new board to use
+         */
+        public void setBoard (ChessBoard board){
             this.board = board;
+        }
+
+        /**
+         * Gets the current chessboard
+         *
+         * @return the chessboard
+         */
+        public ChessBoard getBoard () {
+            return this.board;
+        }
     }
 
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-            return this.board;
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }
