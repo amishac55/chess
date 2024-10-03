@@ -85,6 +85,8 @@ public class ChessGame {
 
         return isInCheck(team, boardCopy);
     }
+
+
     /**
      * Makes a move in a chess game
      *
@@ -104,6 +106,19 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
     }
+
+    public Set<ChessPosition> getOpponentMoves(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
+        Set<ChessPosition> enemyMoves = new HashSet<>();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, new ChessPosition(row, col));
+                    moves.forEach(move -> enemyMoves.add(move.getEndPosition()));
+                }
+            }
+        }
+        return enemyMoves;
 
     /**
      * Determines if the given team is in checkmate
