@@ -127,6 +127,18 @@ public class ChessGame {
         }
         return enemyMoves;
 
+        private ChessPosition findKing(chess.ChessGame.TeamColor teamColor, ChessBoard board) {
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                    if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                        return new ChessPosition(row, col);
+                    }
+                }
+            }
+            return null;
+        }
+
         /**
          * Determines if the given team is in checkmate
          *
@@ -134,7 +146,11 @@ public class ChessGame {
          * @return True if the specified team is in checkmate
          */
         public boolean isInCheckmate (TeamColor teamColor){
-            throw new RuntimeException("Not implemented");
+            if (!isInCheck(teamColor, board)) {
+                return false;
+            }
+
+            return isMoveAvailable(teamColor);
         }
 
         /**
