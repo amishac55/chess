@@ -101,8 +101,13 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        ChessPosition endPos = move.getEndPosition();
+        ChessPosition end
+        Pos = move.getEndPosition();
         ChessPiece.PieceType promotion = move.getPromotionPiece();
+
+        if (promotion != null) {
+            piece = new ChessPiece(piece.getTeamColor(), promotion);
+        }
 
         board.addPiece(endPos, piece);
         board.addPiece(startPos, null);
