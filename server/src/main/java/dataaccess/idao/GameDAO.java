@@ -20,12 +20,6 @@ public interface GameDAO {
 
     void addPlayer(Integer gameID, String username, PlayerColor requestedPlayerColor) throws DataAccessException;
 
-    void addPlayer(Integer gameID, String username) throws DataAccessException;
-
-    public void updateGame(GameData gameData) throws DataAccessException;
-
-    void removeGame(Integer gameID) throws DataAccessException;
-
     default Integer createGame(String gameName) throws DataAccessException {
         Integer gameID = UniqueIDGenerator.generateUniqueId();
         ChessGame newGame = new ChessGame();

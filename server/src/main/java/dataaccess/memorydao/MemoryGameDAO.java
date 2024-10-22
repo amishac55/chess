@@ -85,41 +85,4 @@ public class MemoryGameDAO implements dataaccess.idao.GameDAO {
         }
     }
 
-    @Override
-    public void addPlayer(Integer gameID, String username) throws DataAccessException {
-        GameData currentGame = gameDB.get(gameID);
-        if (currentGame == null) {
-            throw new DataAccessException(400, "Error: bad request");
-        }
-
-        Map<PlayerColor, Boolean> availability = checkGameAvailability(gameID);
-
-        if (!availability.get(PlayerColor.WHITE) && !availability.get(PlayerColor.BLACK)) {
-            throw new DataAccessException(403, "Error: game is already full");
-        }
-
-        if (availability.get(PlayerColor.WHITE)) {
-            currentGame.setWhiteUsername(username);
-        } else if (availability.get(PlayerColor.BLACK)) {
-            currentGame.setBlackUsername(username);
-        }
-    }
-
-    @Override
-    public void updateGame(GameData gameData) throws DataAccessException {
-        try {
-            gameDB.put(gameData.getGameID(), gameData);
-        } catch (Exception e) {
-            throw new DataAccessException(500, "Error: internal server error");
-        }
-    }
-
-    @Override
-    public void removeGame(Integer gameID) throws DataAccessException {
-        try {
-            gameDB.remove(gameID);
-        } catch (Exception e) {
-            throw new DataAccessException(400, "Error: Game does not exist");
-        }
-    }
 }
