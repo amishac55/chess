@@ -1,7 +1,7 @@
-package dataaccess.MemoryDAO;
+package dataaccess.memorydao;
 
 import dataaccess.DataAccessException;
-import dataaccess.IDAO.UserDAO;
+import dataaccess.idao.UserDAO;
 import model.UserData;
 
 import java.util.HashMap;

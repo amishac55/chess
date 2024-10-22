@@ -1,4 +1,4 @@
-package dataaccess.MemoryDAO;
+package dataaccess.memorydao;
 
 import dataaccess.DataAccessException;
 import model.GameData;
@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MemoryGameDAO implements dataaccess.IDAO.GameDAO {
+public class MemoryGameDAO implements dataaccess.idao.GameDAO {
     private Map<Integer, GameData> gameDB = new HashMap<>();
 
     @Override

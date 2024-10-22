@@ -2,8 +2,8 @@ package service;
 
 import dataaccess.DAOFactory;
 import dataaccess.DataAccessException;
-import dataaccess.IDAO.AuthDAO;
-import dataaccess.IDAO.GameDAO;
+import dataaccess.idao.AuthDAO;
+import dataaccess.idao.GameDAO;
 import model.AuthData;
 import responses.ListGamesResponse;
 import utils.PlayerColor;

@@ -1,11 +1,11 @@
 package dataaccess;
 
-import dataaccess.IDAO.AuthDAO;
-import dataaccess.IDAO.UserDAO;
-import dataaccess.IDAO.GameDAO;
-import dataaccess.MemoryDAO.MemoryAuthDAO;
-import dataaccess.MemoryDAO.MemoryGameDAO;
-import dataaccess.MemoryDAO.MemoryUserDAO;
+import dataaccess.idao.AuthDAO;
+import dataaccess.idao.UserDAO;
+import dataaccess.idao.GameDAO;
+import dataaccess.memorydao.MemoryAuthDAO;
+import dataaccess.memorydao.MemoryGameDAO;
+import dataaccess.memorydao.MemoryUserDAO;
 
 public class DAOFactory {
     private static DAOFactory instance;

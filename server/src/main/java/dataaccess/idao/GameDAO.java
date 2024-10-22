@@ -1,4 +1,4 @@
-package dataaccess.IDAO;
+package dataaccess.idao;
 
 import chess.ChessBoard;
 import chess.ChessGame;
@@ -8,7 +8,6 @@ import utils.PlayerColor;
 import utils.UniqueIDGenerator;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface GameDAO {
     void clearGameData() throws DataAccessException;

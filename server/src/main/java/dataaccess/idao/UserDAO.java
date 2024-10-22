@@ -1,4 +1,4 @@
-package dataaccess.IDAO;
+package dataaccess.idao;
 
 import dataaccess.DataAccessException;
 import model.UserData;

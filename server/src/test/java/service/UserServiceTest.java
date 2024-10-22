@@ -2,8 +2,8 @@ package service;
 
 import dataaccess.DAOFactory;
 import dataaccess.DataAccessException;
-import dataaccess.IDAO.AuthDAO;
-import dataaccess.IDAO.UserDAO;
+import dataaccess.idao.AuthDAO;
+import dataaccess.idao.UserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
