@@ -5,61 +5,50 @@ import dataaccess.DataAccessException;
 import dataaccess.IDAO.AuthDAO;
 import dataaccess.IDAO.GameDAO;
 import dataaccess.IDAO.UserDAO;
-import org.junit.jupiter.api.AfterAll;
+import model.AuthData;
+import model.UserData;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClearServiceTest {
 
-    @Mock
-    private static AuthDAO authDAO;
-    @Mock
-    private static GameDAO gameDAO;
-    @Mock
-    private static UserDAO userDAO;
-    @Mock
-    private static DAOFactory daoFactory;
-
     private ClearService clearService;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
+    private UserDAO userDAO;
+    private AuthData authData;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        when(daoFactory.getAuthDAO()).thenReturn(authDAO);
-        when(daoFactory.getGameDAO()).thenReturn(gameDAO);
-        when(daoFactory.getUserDAO()).thenReturn(userDAO);
-        DAOFactory.setInstance(daoFactory);
+    void setUp() throws DataAccessException {
+        DAOFactory factory = DAOFactory.getInstance();
+        authDAO = factory.getAuthDAO();
+        gameDAO = factory.getGameDAO();
+        userDAO = factory.getUserDAO();
         clearService = new ClearService();
+
+        userDAO.createUser(new UserData("user", "pass", "user@test.com"));
+        authData = authDAO.createAuth("user");
+        gameDAO.createGame("game");
     }
 
-    @AfterAll
-    static void tearDown() {
-        // Reset DAOFactory
-        DAOFactory.setInstance(null);
-
-        // Clear all data
-        try {
-            ClearService clearService = new ClearService();
-            clearService.clearAllData();
-        } catch (DataAccessException e) {
-            fail("Failed to clear data during teardown: " + e.getMessage());
-        }
-
-        // Reset all mocks
-        reset(authDAO, gameDAO, userDAO, daoFactory);
+    @AfterEach
+    void tearDown() throws DataAccessException {
+        clearService.clearAllData();
     }
 
     @Test
     void testClearAllDataSuccess() throws DataAccessException {
-        assertDoesNotThrow(() -> clearService.clearAllData());
-        verify(authDAO, times(1)).clearAuthData();
-        verify(gameDAO, times(1)).clearGameData();
-        verify(userDAO, times(1)).clearUserData();
+        assertNotNull(userDAO.getUser("user"));
+        assertNotNull(authDAO.getAuth(authData.authToken()));
+        assertFalse(gameDAO.listGames().isEmpty());
+
+        clearService.clearAllData();
+
+        assertNull(userDAO.getUser("user"));
+        assertNull(authDAO.getAuth(authData.authToken()));
+        assertTrue(gameDAO.listGames().isEmpty());
     }
 }

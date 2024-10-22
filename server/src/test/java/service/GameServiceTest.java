@@ -4,137 +4,107 @@ import dataaccess.DAOFactory;
 import dataaccess.DataAccessException;
 import dataaccess.IDAO.AuthDAO;
 import dataaccess.IDAO.GameDAO;
+import dataaccess.IDAO.UserDAO;
 import model.AuthData;
 import model.GameData;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import model.UserData;
+import org.junit.jupiter.api.*;
 import responses.ListGamesResponse;
 import utils.PlayerColor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class GameServiceTest {
 
     private GameService gameServiceToTest;
-    private static GameDAO mockGameDao;
-    private static AuthDAO mockAuthDao;
-    private static DAOFactory mockDAOFactory;
-
+    private GameDAO gameDAO;
+    private AuthDAO authDAO;
+    private UserDAO userDAO;
+    private ClearService clearService;
+    private AuthData testAuthData;
 
     @BeforeEach
-    void setUp() {
-        mockDAOFactory = mock(DAOFactory.class);
-        mockGameDao = mock(GameDAO.class);
-        mockAuthDao = mock(AuthDAO.class);
-        // Configure mock DAOFactory to return mock DAOs
-        when(mockDAOFactory.getGameDAO()).thenReturn(mockGameDao);
-        when(mockDAOFactory.getAuthDAO()).thenReturn(mockAuthDao);
-
-        DAOFactory.setInstance(mockDAOFactory);
+    void setUp() throws DataAccessException {
+        DAOFactory factory = DAOFactory.getInstance();
+        gameDAO = factory.getGameDAO();
+        authDAO = factory.getAuthDAO();
+        userDAO = factory.getUserDAO();
+        clearService = new ClearService();
         gameServiceToTest = new GameService();
+
+        clearService.clearAllData();
+
+        userDAO.createUser(new UserData("user", "pass", "user@test.com"));
+        testAuthData = authDAO.createAuth("user");
     }
 
-    @AfterAll
-    static void tearDown() {
-        // Reset DAOFactory
-        DAOFactory.setInstance(null);
-
-        // Clear all data
-        try {
-            ClearService clearService = new ClearService();
-            clearService.clearAllData();
-        } catch (DataAccessException e) {
-            fail("Failed to clear data during teardown: " + e.getMessage());
-        }
-
-        // Reset all mocks
-        reset(mockGameDao, mockAuthDao, mockDAOFactory);
+    @AfterEach
+    void tearDown() throws DataAccessException {
+        clearService.clearAllData();
     }
 
     @Test
     void shouldCreateGameWhenAuthTokenIsValid() throws DataAccessException {
-        String validToken = "validToken";
-        String gameName = "TestGame";
-        when(mockAuthDao.verifyAuth(validToken)).thenReturn(true);
-        when(mockGameDao.createGame(gameName)).thenReturn(1);
+        String validToken = testAuthData.authToken();
+        String gameName = "valorant";
 
-        Integer gameId = gameServiceToTest.createGame("TestGame", "validToken");
+        Integer gameId = gameServiceToTest.createGame(gameName, validToken);
 
-        assertEquals(1, gameId, "Game ID should be 1");
-        verify(mockGameDao).createGame(gameName);
-        verify(mockAuthDao).verifyAuth(validToken);
+        assertNotNull(gameId);
+        assertNotNull(gameDAO.getGame(gameId));
+        assertEquals(gameName, gameDAO.getGame(gameId).getGameName());
     }
 
     @Test
-    void shouldThrowExceptionWhenCreatingGameWithInvalidAuth() throws DataAccessException {
-        String invalidToken = "invalidToken";
-        String gameName = "TestGame";
-        when(mockAuthDao.verifyAuth(invalidToken)).thenReturn(false);
+    void shouldThrowExceptionWhenCreatingGameWithInvalidAuth() {
+        String invalidToken = "whoopsie";
+        String gameName = "valorant";
 
-        assertThrows(DataAccessException.class, () -> gameServiceToTest.createGame("TestGame", "invalidToken"));
-        verify(mockGameDao, never()).createGame(anyString());
+        assertThrows(DataAccessException.class, () -> gameServiceToTest.createGame(gameName, invalidToken));
     }
 
     @Test
     void shouldJoinGameWhenAuthTokenIsValid() throws DataAccessException {
-        when(mockAuthDao.verifyAuth("validToken")).thenReturn(true);
-        when(mockAuthDao.getAuth("validToken")).thenReturn(new AuthData("validToken", "username"));
+        String validToken = testAuthData.authToken();
+        Integer gameId = gameServiceToTest.createGame("valorant", validToken);
 
-        assertDoesNotThrow(() -> gameServiceToTest.joinGame(1, PlayerColor.WHITE, "validToken"));
-        verify(mockGameDao).addPlayer(1, "username", PlayerColor.WHITE);
+        assertDoesNotThrow(() -> gameServiceToTest.joinGame(gameId, PlayerColor.WHITE, validToken));
+
+        GameData game = gameDAO.getGame(gameId);
+        assertEquals("user", game.getWhiteUsername());
     }
 
     @Test
-    void shouldNotJoinGameWhenAuthTokenIsInvalid() throws DataAccessException {
-        when(mockAuthDao.verifyAuth("invalidToken")).thenReturn(false);
-
-        assertThrows(DataAccessException.class, () -> gameServiceToTest.joinGame(1, PlayerColor.WHITE, "invalidToken"));
-        verify(mockGameDao, never()).addPlayer(anyInt(), anyString(), any(PlayerColor.class));
+    void shouldNotJoinGameWhenAuthTokenIsInvalid() {
+        assertThrows(DataAccessException.class, () -> gameServiceToTest.joinGame(1, PlayerColor.WHITE, "whoopsie"));
     }
 
     @Test
     void shouldThrowExceptionWhenGameDoesNotExist() throws DataAccessException {
-        String validToken = "validToken";
-        String username = "username";
-        when(mockAuthDao.verifyAuth(validToken)).thenReturn(true);
-        when(mockAuthDao.getAuth(validToken)).thenReturn(new AuthData(username, validToken));
-        doThrow(new DataAccessException(404, "Game not found")).when(mockGameDao).addPlayer(anyInt(), anyString(), any(PlayerColor.class));
+        String validToken = testAuthData.authToken();
 
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> gameServiceToTest.joinGame(999, PlayerColor.WHITE, "validToken"));
-        assertEquals(404, exception.getStatusCode(), "Status code should be 404");
-        assertEquals("Game not found", exception.getMessage(), "Exception message should be 'Game not found'");
+        DataAccessException exception = assertThrows(DataAccessException.class,
+                () -> gameServiceToTest.joinGame(999, PlayerColor.WHITE, validToken));
+        assertEquals("Error: bad request", exception.getMessage());
     }
 
     @Test
     void shouldListGamesWhenAuthTokenIsValid() throws DataAccessException {
-        when(mockAuthDao.verifyAuth("validToken")).thenReturn(true);
-        ArrayList<GameData> mockGames = new ArrayList<>(Arrays.asList(
-                new GameData(1, "White1", "Black1", "Game1", null),
-                new GameData(2, "White2", "Black2", "Game2", null)
-        ));
-        when(mockGameDao.listGames()).thenReturn(mockGames);
+        String validToken = testAuthData.authToken();
+        gameServiceToTest.createGame("pubg", validToken);
+        gameServiceToTest.createGame("barbieDreamHouse", validToken);
 
-        ArrayList<ListGamesResponse.GameRecord> resultGameRecords = gameServiceToTest.listGames("validToken");
+        ArrayList<ListGamesResponse.GameRecord> resultGameRecords = gameServiceToTest.listGames(validToken);
 
         assertEquals(2, resultGameRecords.size(), "Game record size should be 2");
-        assertEquals(1, resultGameRecords.getFirst().gameID());
-        assertEquals("White1", resultGameRecords.getFirst().whiteUsername());
-        assertEquals("Black1", resultGameRecords.getFirst().blackUsername());
-        assertEquals("Game1", resultGameRecords.getFirst().gameName());
-        verify(mockAuthDao).verifyAuth("validToken");
-        verify(mockGameDao).listGames();
+        assertEquals("pubg", resultGameRecords.get(0).gameName());
+        assertEquals("barbieDreamHouse", resultGameRecords.get(1).gameName());
     }
 
     @Test
-    void shouldThrowExceptionWhenListingGamesWithInvalidAuthToken() throws DataAccessException {
-        when(mockAuthDao.verifyAuth("invalidToken")).thenReturn(false);
-
-        assertThrows(DataAccessException.class, () -> gameServiceToTest.listGames("invalidToken"));
-        verify(mockGameDao, never()).listGames();
+    void shouldThrowExceptionWhenListingGamesWithInvalidAuthToken() {
+        assertThrows(DataAccessException.class, () -> gameServiceToTest.listGames("whoopsie"));
     }
 }
