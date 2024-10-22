@@ -29,15 +29,6 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void removeUser(String username) throws DataAccessException {
-        try {
-            userDB.remove(username);
-        } catch (Exception e) {
-            throw new DataAccessException(401, "Error: " + username + " does not exist");
-        }
-    }
-
-    @Override
     public boolean authenticateUser(String username, String password) throws DataAccessException {
         if (userDB.containsKey(username)) {
             UserData user = userDB.get(username);
