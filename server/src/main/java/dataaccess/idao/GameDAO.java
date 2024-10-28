@@ -18,6 +18,10 @@ public interface GameDAO {
 
     Collection<GameData> listGames() throws DataAccessException;
 
+    void updateGame(GameData gameData) throws DataAccessException;
+
+    void deleteGame(Integer gameID) throws DataAccessException;
+
     void addPlayer(Integer gameID, String username, PlayerColor requestedPlayerColor) throws DataAccessException;
 
     default Integer createGame(String gameName) throws DataAccessException {
