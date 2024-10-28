@@ -20,6 +20,7 @@ public class LoginHandler {
             return GSON.toJson(new LoginResponse(userAuthData.username(), userAuthData.authToken(), "Login successful"));
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
+            response.body(e.getMessage());
             return GSON.toJson(new LoginResponse(null, null, e.getMessage()));
         }
     }

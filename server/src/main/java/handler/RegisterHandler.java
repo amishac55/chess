@@ -23,6 +23,7 @@ public class RegisterHandler {
             return GSON.toJson(new RegisterResponse(newUserAuth.username(), newUserAuth.authToken(), "User registered successfully"));
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
+            response.body(e.getMessage());
             return GSON.toJson(new RegisterResponse(null, null, e.getMessage()));
         }
     }
