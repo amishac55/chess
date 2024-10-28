@@ -11,7 +11,7 @@ public class ClearService {
     private final GameDAO gameDAO;
     private final UserDAO userDAO;
 
-    public ClearService() {
+    public ClearService() throws DataAccessException {
         DAOFactory daoFactory = DAOFactory.getInstance();
         this.authDAO = daoFactory.getAuthDAO();
         this.gameDAO = daoFactory.getGameDAO();
