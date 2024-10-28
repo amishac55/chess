@@ -22,7 +22,7 @@ public class MemoryAuthDAO implements AuthDAO {
         try {
             authDB.remove(authToken);
         } catch (Exception e) {
-            throw new DataAccessException(400, "Error: username does not exist");
+            throw new DataAccessException(400, "Error: Invalid authentication token");
         }
     }
 

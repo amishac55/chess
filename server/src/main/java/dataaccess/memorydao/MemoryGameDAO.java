@@ -47,6 +47,20 @@ public class MemoryGameDAO implements dataaccess.idao.GameDAO {
         }
     }
 
+    @Override
+    public void updateGame(GameData gameData) throws DataAccessException {
+        addGame(gameData);
+    }
+
+    @Override
+    public void deleteGame(Integer gameID) throws DataAccessException {
+        try{
+            gameDB.remove(gameID);
+        } catch (Exception e) {
+            throw new DataAccessException(500, "Error: game with " + gameID.toString() + " does not exist");
+        }
+    }
+
     public Map<PlayerColor, Boolean> checkGameAvailability(Integer gameID) throws DataAccessException {
         GameData game = gameDB.get(gameID);
         if (game == null) {
