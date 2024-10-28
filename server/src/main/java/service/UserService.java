@@ -12,7 +12,7 @@ public class UserService {
     private final UserDAO userDao;
     private final AuthDAO authDao;
 
-    public UserService() {
+    public UserService() throws DataAccessException {
         DAOFactory daoFactory = DAOFactory.getInstance();
         this.userDao = daoFactory.getUserDAO();
         this.authDao = daoFactory.getAuthDAO();
@@ -21,10 +21,6 @@ public class UserService {
     public AuthData register(UserData userData) throws DataAccessException {
         if (userData == null || userData.username() ==null|| userData.password() ==null || userData.email()==null){
             throw new DataAccessException(400, "Error: Bad Request");
-        }
-
-        if (userDao.getUser(userData.username())!= null){
-            throw new DataAccessException(403, "Error: username already taken");
         }
 
         userDao.createUser(userData);
