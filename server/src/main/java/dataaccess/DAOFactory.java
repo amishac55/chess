@@ -3,9 +3,10 @@ package dataaccess;
 import dataaccess.idao.AuthDAO;
 import dataaccess.idao.UserDAO;
 import dataaccess.idao.GameDAO;
-import dataaccess.memorydao.MemoryAuthDAO;
-import dataaccess.memorydao.MemoryGameDAO;
-import dataaccess.memorydao.MemoryUserDAO;
+
+import dataaccess.sqldao.SQLAuthDAO;
+import dataaccess.sqldao.SQLGameDAO;
+import dataaccess.sqldao.SQLUserDAO;
 
 public class DAOFactory {
     private static DAOFactory instance;
@@ -13,14 +14,13 @@ public class DAOFactory {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
 
-    private DAOFactory() {
-        // Initialize your DAOs here
-        this.userDAO = new MemoryUserDAO();
-        this.authDAO = new MemoryAuthDAO();
-        this.gameDAO = new MemoryGameDAO();
+    private DAOFactory() throws DataAccessException {
+        this.userDAO = new SQLUserDAO();
+        this.authDAO = new SQLAuthDAO();
+        this.gameDAO = new SQLGameDAO();
     }
 
-    public static synchronized DAOFactory getInstance() {
+    public static synchronized DAOFactory getInstance() throws DataAccessException {
         if (instance == null) {
             instance = new DAOFactory();
         }
