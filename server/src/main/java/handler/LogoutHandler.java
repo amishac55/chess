@@ -18,6 +18,7 @@ public class LogoutHandler {
             return GSON.toJson(new CommonResponse("Logged out successfully"));
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
+            response.body(e.getMessage());
             return GSON.toJson(new CommonResponse(e.getMessage()));
         }
     }
