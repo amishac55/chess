@@ -26,14 +26,13 @@ public class SQLUserDAO extends SQLBaseClass implements UserDAO {
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        // First, check if the user already exists
+
         try (var conn = DatabaseManager.getConnection()) {
             var checkStatement = "SELECT username FROM userTable WHERE username=?";
             try (var ps = conn.prepareStatement(checkStatement)) {
                 ps.setString(1, user.username());
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        // User already exists, throw an exception
                         throw new DataAccessException(403, "Error: username already taken");
                     }
                 }
@@ -42,7 +41,7 @@ public class SQLUserDAO extends SQLBaseClass implements UserDAO {
             throw new DataAccessException(500, "Error: Internal server error while checking for existing user. " + e.getMessage());
         }
 
-        // If we reach here, the user doesn't exist, so we can create a new user
+
         var insertStatement = "INSERT INTO userTable (username, password, email) VALUES (?, ?, ?)";
         try {
             String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
