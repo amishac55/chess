@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.idao.AuthDAO;
 import dataaccess.idao.GameDAO;
 import model.AuthData;
+import model.GameData;
 import responses.ListGamesResponse;
 import utils.PlayerColor;
 
@@ -14,7 +15,7 @@ public class GameService {
     private final GameDAO gameDao;
     private final AuthDAO authDAO;
 
-    public GameService() {
+    public GameService() throws DataAccessException {
         DAOFactory daoFactory = DAOFactory.getInstance();
         this.gameDao = daoFactory.getGameDAO();
         this.authDAO = daoFactory.getAuthDAO();
@@ -38,6 +39,26 @@ public class GameService {
             throw new DataAccessException(e.getStatusCode(), e.getMessage());
         }
     }
+
+    public void makeMove(String authToken, GameData gameData) throws DataAccessException {
+        validateAuthToken(authToken);
+        updateGameData(gameData);
+    }
+
+    private void validateAuthToken(String authToken) throws DataAccessException {
+        if (!authDAO.verifyAuth(authToken)) {
+            throw new DataAccessException(401, "Error: Invalid authentication token");
+        }
+    }
+
+    private void updateGameData(GameData gameData) throws DataAccessException {
+        try {
+            gameDao.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getStatusCode(), e.getMessage());
+        }
+    }
+
 
     public ArrayList<ListGamesResponse.GameRecord> listGames(String authToken) throws DataAccessException {
         if (!authDAO.verifyAuth(authToken)) {
