@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.sqldao.SQLGameDAO;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -17,24 +18,23 @@ class SQLGameDAOTest {
     private static SQLGameDAO gameDAO;
 
     @BeforeAll
-    static void initializeDAO() throws DataAccessException {
+    static void setUp() throws DataAccessException {
         gameDAO = new SQLGameDAO();
     }
 
     @AfterAll
-    static void cleanUp() throws DataAccessException {
+    static void tearDown() throws DataAccessException {
         gameDAO.clearGameData();
     }
 
     @BeforeEach
-    void resetDatabase() throws DataAccessException {
+    void clearDatabase() throws DataAccessException {
         gameDAO.clearGameData();
     }
 
     @Test
-    void addGame_ShouldAddGameSuccessfully() throws DataAccessException {
+    void addGame_positive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
-
         assertDoesNotThrow(() -> gameDAO.addGame(game));
 
         GameData retrievedGame = gameDAO.getGame(1);
@@ -43,7 +43,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addGame_ShouldThrowException_WhenDuplicateId() throws DataAccessException {
+    void addGame_negative_duplicateId() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(1, null, null, "Test Game 2", new ChessGame());
 
@@ -52,12 +52,11 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void getGame_ShouldReturnGame_WhenIdExists() throws DataAccessException {
+    void getGame_positive() throws DataAccessException {
         GameData game = new GameData(1, "white", "black", "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
         GameData retrievedGame = gameDAO.getGame(1);
-
         assertNotNull(retrievedGame);
         assertEquals("Test Game", retrievedGame.getGameName());
         assertEquals("white", retrievedGame.getWhiteUsername());
@@ -65,47 +64,53 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void getGame_ShouldReturnNull_WhenIdDoesNotExist() throws DataAccessException {
+    void getGame_negative_nonExistentId() throws DataAccessException {
         GameData retrievedGame = gameDAO.getGame(999);
         assertNull(retrievedGame);
     }
 
     @Test
-    void listGames_ShouldReturnAllGames() throws DataAccessException {
+    void listGames_positive() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(2, "whiteUser", "blackUser", "Test Game 2", new ChessGame());
-
         gameDAO.addGame(game1);
         gameDAO.addGame(game2);
 
         Collection<GameData> games = gameDAO.listGames();
         assertEquals(2, games.size());
 
+        // Convert collection to list for easier assertion
         List<GameData> gamesList = new ArrayList<>(games);
 
-        // Verify games details
+        // Verify first game
         assertEquals(1, gamesList.get(0).getGameID());
         assertEquals("Test Game 1", gamesList.get(0).getGameName());
         assertNull(gamesList.get(0).getWhiteUsername());
         assertNull(gamesList.get(0).getBlackUsername());
 
+        // Verify second game
         assertEquals(2, gamesList.get(1).getGameID());
         assertEquals("Test Game 2", gamesList.get(1).getGameName());
         assertEquals("whiteUser", gamesList.get(1).getWhiteUsername());
         assertEquals("blackUser", gamesList.get(1).getBlackUsername());
 
+        // Verify that the games are in the correct order
+        assertEquals(1, gamesList.get(0).getGameID());
+        assertEquals(2, gamesList.get(1).getGameID());
+
+        // Verify that the chess games are not null
         assertNotNull(gamesList.get(0).getChessGame());
         assertNotNull(gamesList.get(1).getChessGame());
     }
 
     @Test
-    void listGames_ShouldReturnEmpty_WhenNoGamesExist() throws DataAccessException {
+    void listGames_negative_emptyDatabase() throws DataAccessException {
         Collection<GameData> games = gameDAO.listGames();
         assertTrue(games.isEmpty());
     }
 
     @Test
-    void deleteGame_ShouldRemoveGame_WhenIdExists() throws DataAccessException {
+    void deleteGame_positive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -114,11 +119,13 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void deleteGame_ShouldNotAffectDatabase_WhenIdDoesNotExist() throws DataAccessException {
+    void deleteGame_negative_nonExistentId() throws DataAccessException {
+        // Add a game to ensure the database is not empty
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
         int initialCount = gameDAO.listGames().size();
 
+        // Try to delete a non-existent game
         gameDAO.deleteGame(999);
 
         assertEquals(initialCount, gameDAO.listGames().size());
@@ -126,18 +133,17 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addPlayer_ShouldAddPlayerToGame_WhenSlotIsAvailable() throws DataAccessException {
+    void addPlayer_positive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
         assertDoesNotThrow(() -> gameDAO.addPlayer(1, "testUser", PlayerColor.WHITE));
         GameData updatedGame = gameDAO.getGame(1);
-
         assertEquals("testUser", updatedGame.getWhiteUsername());
     }
 
     @Test
-    void addPlayer_ShouldThrowException_WhenSlotAlreadyTaken() throws DataAccessException {
+    void addPlayer_negative_alreadyTaken() throws DataAccessException {
         GameData game = new GameData(1, "existingUser", null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -145,10 +151,9 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void clearGameData_ShouldRemoveAllGames() throws DataAccessException {
+    void clearGameData_positive() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(2, null, null, "Test Game 2", new ChessGame());
-
         gameDAO.addGame(game1);
         gameDAO.addGame(game2);
 
