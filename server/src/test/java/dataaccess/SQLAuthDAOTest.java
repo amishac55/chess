@@ -26,7 +26,7 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void createAuth_ShouldReturnValidAuthData() throws DataAccessException {
+    void createAuthShouldReturnValidAuthData() throws DataAccessException {
         AuthData authData = authDAO.createAuth("testUser");
         assertNotNull(authData);
         assertEquals("testUser", authData.username());
@@ -34,7 +34,7 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void getAuth_ShouldReturnAuthData_WhenTokenExists() throws DataAccessException {
+    void getAuthShouldReturnAuthDataWhenTokenExists() throws DataAccessException {
         AuthData createdAuth = authDAO.createAuth("testUser");
         AuthData retrievedAuth = authDAO.getAuth(createdAuth.authToken());
 
@@ -44,24 +44,24 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void getAuth_ShouldReturnNull_WhenTokenDoesNotExist() throws DataAccessException {
+    void getAuthShouldReturnNullWhenTokenDoesNotExist() throws DataAccessException {
         AuthData retrievedAuth = authDAO.getAuth("nonExistentToken");
         assertNull(retrievedAuth);
     }
 
     @Test
-    void verifyAuth_ShouldReturnTrue_WhenTokenExists() throws DataAccessException {
+    void verifyAuthShouldReturnTrueWhenTokenExists() throws DataAccessException {
         AuthData authData = authDAO.createAuth("testUser");
         assertTrue(authDAO.verifyAuth(authData.authToken()));
     }
 
     @Test
-    void verifyAuth_ShouldReturnFalse_WhenTokenDoesNotExist() throws DataAccessException {
+    void verifyAuthShouldReturnFalseWhenTokenDoesNotExist() throws DataAccessException {
         assertFalse(authDAO.verifyAuth("nonExistentToken"));
     }
 
     @Test
-    void deleteAuth_ShouldRemoveAuthData_WhenTokenExists() throws DataAccessException {
+    void deleteAuthShouldRemoveAuthDataWhenTokenExists() throws DataAccessException {
         AuthData authData = authDAO.createAuth("testUser");
 
         assertDoesNotThrow(() -> authDAO.deleteAuth(authData.authToken()));
@@ -69,12 +69,12 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void deleteAuth_ShouldNotThrow_WhenTokenDoesNotExist() {
+    void deleteAuthShouldNotThrowWhenTokenDoesNotExist() {
         assertDoesNotThrow(() -> authDAO.deleteAuth("nonExistentToken"));
     }
 
     @Test
-    void clearAuthData_ShouldRemoveAllAuthData() throws DataAccessException {
+    void clearAuthDataShouldRemoveAllAuthData() throws DataAccessException {
         authDAO.createAuth("user1");
         authDAO.createAuth("user2");
 

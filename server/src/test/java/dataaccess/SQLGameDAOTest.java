@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import dataaccess.sqldao.SQLGameDAO;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -33,7 +32,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addGame_positive() throws DataAccessException {
+    void addGamePositive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         assertDoesNotThrow(() -> gameDAO.addGame(game));
 
@@ -43,7 +42,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addGame_negative_duplicateId() throws DataAccessException {
+    void addGameNegativeDuplicateId() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(1, null, null, "Test Game 2", new ChessGame());
 
@@ -52,7 +51,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void getGame_positive() throws DataAccessException {
+    void getGamePositive() throws DataAccessException {
         GameData game = new GameData(1, "white", "black", "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -64,13 +63,13 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void getGame_negative_nonExistentId() throws DataAccessException {
+    void getGameNegativeNonExistentId() throws DataAccessException {
         GameData retrievedGame = gameDAO.getGame(999);
         assertNull(retrievedGame);
     }
 
     @Test
-    void listGames_positive() throws DataAccessException {
+    void listGamesPositive() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(2, "whiteUser", "blackUser", "Test Game 2", new ChessGame());
         gameDAO.addGame(game1);
@@ -104,13 +103,13 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void listGames_negative_emptyDatabase() throws DataAccessException {
+    void listGamesNegativeEmptyDatabase() throws DataAccessException {
         Collection<GameData> games = gameDAO.listGames();
         assertTrue(games.isEmpty());
     }
 
     @Test
-    void deleteGame_positive() throws DataAccessException {
+    void deleteGamePositive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -119,7 +118,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void deleteGame_negative_nonExistentId() throws DataAccessException {
+    void deleteGameNegativeNonExistentId() throws DataAccessException {
         // Add a game to ensure the database is not empty
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
@@ -133,7 +132,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addPlayer_positive() throws DataAccessException {
+    void addPlayerPositive() throws DataAccessException {
         GameData game = new GameData(1, null, null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -143,7 +142,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addPlayer_negative_alreadyTaken() throws DataAccessException {
+    void addPlayerNegativeAlreadyTaken() throws DataAccessException {
         GameData game = new GameData(1, "existingUser", null, "Test Game", new ChessGame());
         gameDAO.addGame(game);
 
@@ -151,7 +150,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void clearGameData_positive() throws DataAccessException {
+    void clearGameDataPositive() throws DataAccessException {
         GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
         GameData game2 = new GameData(2, null, null, "Test Game 2", new ChessGame());
         gameDAO.addGame(game1);

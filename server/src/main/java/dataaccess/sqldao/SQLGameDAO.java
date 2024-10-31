@@ -42,15 +42,13 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
-        if (gameID!=null){
-            try (var conn = DatabaseManager.getConnection()) {
-                var statement = "SELECT * FROM gameTable WHERE gameID=?";
-                try (var ps = conn.prepareStatement(statement)) {
-                    ps.setInt(1, gameID);
-                    try (var rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            return readGame(rs);
-                        }
+        if (gameID != null) {
+            try (var conn = getConnection()) {
+                var statement = prepareStatement(conn, "SELECT * FROM gameTable WHERE gameID=?");
+                statement.setInt(1, gameID);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
                     }
                 }
             } catch (Exception e) {
@@ -58,6 +56,14 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
             }
         }
         return null;
+    }
+
+    private Connection getConnection() throws SQLException, DataAccessException {
+        return DatabaseManager.getConnection();
+    }
+
+    private PreparedStatement prepareStatement(Connection conn, String statement) throws SQLException {
+        return conn.prepareStatement(statement);
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
@@ -166,17 +172,7 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                ps.executeUpdate();
+                executeUpdate(ps, params);
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     rs.getInt(1);
@@ -185,5 +181,19 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
         } catch (Exception e) {
             throw new DataAccessException(500, String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
+    }
+
+    static void executeUpdate(PreparedStatement ps, Object[] params) throws SQLException {
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
+        }
+        ps.executeUpdate();
     }
 }

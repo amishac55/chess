@@ -29,7 +29,7 @@ class SQLUserDAOTest {
     }
 
     @Test
-    void createUser_shouldCreateUserSuccessfully() throws DataAccessException {
+    void createUserShouldCreateUserSuccessfully() throws DataAccessException {
         UserData user = createUser(TEST_USERNAME, TEST_PASSWORD, TEST_EMAIL);
 
         assertDoesNotThrow(() -> userDAO.createUser(user));
@@ -37,41 +37,41 @@ class SQLUserDAOTest {
     }
 
     @Test
-    void createUser_shouldThrowExceptionForDuplicateUsername() throws DataAccessException {
+    void createUserShouldThrowExceptionForDuplicateUsername() throws DataAccessException {
         userDAO.createUser(createUser(TEST_USERNAME, TEST_PASSWORD, "test1@example.com"));
         assertThrows(DataAccessException.class, () -> userDAO.createUser(createUser(TEST_USERNAME, "password456", "test2@example.com")));
     }
 
     @Test
-    void getUser_shouldReturnExistingUser() throws DataAccessException {
+    void getUserShouldReturnExistingUser() throws DataAccessException {
         userDAO.createUser(createUser(TEST_USERNAME, TEST_PASSWORD, TEST_EMAIL));
         verifyUserExists(TEST_USERNAME, TEST_EMAIL);
     }
 
     @Test
-    void getUser_shouldReturnNullForNonExistentUser() throws DataAccessException {
+    void getUserShouldReturnNullForNonExistentUser() throws DataAccessException {
         assertNull(userDAO.getUser("nonExistentUser"));
     }
 
     @Test
-    void authenticateUser_shouldAuthenticateWithCorrectPassword() throws DataAccessException {
+    void authenticateUserShouldAuthenticateWithCorrectPassword() throws DataAccessException {
         userDAO.createUser(createUser(TEST_USERNAME, TEST_PASSWORD, TEST_EMAIL));
         assertTrue(userDAO.authenticateUser(TEST_USERNAME, TEST_PASSWORD));
     }
 
     @Test
-    void authenticateUser_shouldNotAuthenticateWithIncorrectPassword() throws DataAccessException {
+    void authenticateUserShouldNotAuthenticateWithIncorrectPassword() throws DataAccessException {
         userDAO.createUser(createUser(TEST_USERNAME, TEST_PASSWORD, TEST_EMAIL));
         assertFalse(userDAO.authenticateUser(TEST_USERNAME, "wrongPassword"));
     }
 
     @Test
-    void authenticateUser_shouldThrowExceptionForNonExistentUser() {
+    void authenticateUserShouldThrowExceptionForNonExistentUser() {
         assertThrows(DataAccessException.class, () -> userDAO.authenticateUser("nonExistentUser", "password123"));
     }
 
     @Test
-    void clearUserData_shouldClearAllUserData() throws DataAccessException {
+    void clearUserDataShouldClearAllUserData() throws DataAccessException {
         userDAO.createUser(createUser("user1", "password1", "user1@example.com"));
         userDAO.createUser(createUser("user2", "password2", "user2@example.com"));
 
