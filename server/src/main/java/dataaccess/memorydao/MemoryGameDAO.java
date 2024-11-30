@@ -2,14 +2,26 @@ package dataaccess.memorydao;
 
 import dataaccess.DataAccessException;
 import model.GameData;
+import model.GameRecord;
 import utils.PlayerColor;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryGameDAO implements dataaccess.idao.GameDAO {
     private Map<Integer, GameData> gameDB = new HashMap<>();
+    private Map<Integer, ArrayList<String>> observerDB = new HashMap<>();
+
+    @Override
+    public void addObserver(Integer gameID, String username) throws DataAccessException {
+        ArrayList<String> observers = observerDB.get(gameID);
+        observers.add(username);
+        observerDB.put(gameID, observers);
+    }
+
+    @Override
+    public List<String> getObservers(Integer gameID) throws DataAccessException {
+        return observerDB.get(gameID);
+    }
 
     @Override
     public void clearGameData() throws DataAccessException {
@@ -30,21 +42,29 @@ public class MemoryGameDAO implements dataaccess.idao.GameDAO {
     }
 
     @Override
-    public void addGame(GameData gameData) throws DataAccessException {
+    public Integer addGame(GameData gameData) throws DataAccessException {
         try {
             gameDB.put(gameData.getGameID(), gameData);
+            return gameData.getGameID();
         } catch (Exception e) {
             throw new DataAccessException(500, "Error: internal server error");
         }
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
+    public Collection<GameRecord> listGames() throws DataAccessException {
+        Collection<GameRecord> gameRecords = new ArrayList<>();
         try{
-            return gameDB.values();
+            for (GameData game : gameDB.values()) {
+                Integer gameID = game.getGameID();
+                List<String> observers = observerDB.get(gameID);
+                GameRecord gameRecord = new GameRecord(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(), game.getGameName(), observers);
+                gameRecords.add(gameRecord);
+            }
         } catch (Exception e) {
             throw new DataAccessException(500, "Error: internal server error");
         }
+        return gameRecords;
     }
 
     @Override

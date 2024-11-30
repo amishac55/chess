@@ -1,22 +1,25 @@
 package dataaccess.idao;
 
-import chess.ChessBoard;
-import chess.ChessGame;
 import dataaccess.DataAccessException;
 import model.GameData;
+import model.GameRecord;
 import utils.PlayerColor;
-import utils.UniqueIDGenerator;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface GameDAO {
+    void addObserver(Integer gameID, String username) throws DataAccessException;
+
+    List<String> getObservers(Integer gameID) throws DataAccessException;
+
     void clearGameData() throws DataAccessException;
 
     GameData getGame(Integer gameID) throws DataAccessException;
 
-    void addGame(GameData gameData) throws DataAccessException;
+    Integer addGame(GameData gameData) throws DataAccessException;
 
-    Collection<GameData> listGames() throws DataAccessException;
+    Collection<GameRecord> listGames() throws DataAccessException;
 
     void updateGame(GameData gameData) throws DataAccessException;
 
@@ -25,11 +28,7 @@ public interface GameDAO {
     void addPlayer(Integer gameID, String username, PlayerColor requestedPlayerColor) throws DataAccessException;
 
     default Integer createGame(String gameName) throws DataAccessException {
-        Integer gameID = UniqueIDGenerator.generateUniqueId();
-        ChessGame newGame = new ChessGame();
-        newGame.setBoard(new ChessBoard());
-        GameData newGameData = new GameData(gameID, gameName, newGame);
-        addGame(newGameData);
-        return gameID;
+        GameData newGameData = new GameData(gameName);
+        return addGame(newGameData);
     }
 }

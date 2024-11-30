@@ -2,15 +2,18 @@ package dataaccess.sqldao;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.idao.GameDAO;
 import model.GameData;
+import model.GameRecord;
 import utils.PlayerColor;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -26,6 +29,7 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
               `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
               `game` TEXT NOT NULL,
+              `observers` TEXT,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -34,21 +38,22 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
     }
 
     @Override
-    public void addGame(GameData gameData) throws DataAccessException {
-        var statement = "INSERT INTO gameTable (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+    public Integer addGame(GameData gameData) throws DataAccessException {
+        var statement = "INSERT INTO gameTable (whiteUsername, blackUsername, gameName, game, observers) VALUES (?, ?, ?, ?, ?)";
         var json = new Gson().toJson(gameData.getChessGame());
-        executeUpdate(statement, gameData.getGameID(), gameData.getWhiteUsername(), gameData.getBlackUsername(), gameData.getGameName(), json);
+        var observersJson = new Gson().toJson(new ArrayList<>()); // Default value for observers
+        return executeInsert(statement, gameData.getWhiteUsername(), gameData.getBlackUsername(), gameData.getGameName(), json, observersJson);
     }
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
         if (gameID != null) {
             try (var conn = getConnection()) {
-                var statement = prepareStatement(conn, "SELECT * FROM gameTable WHERE gameID=?");
+                var statement = prepareStatement(conn, "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gameTable WHERE gameID=?");
                 statement.setInt(1, gameID);
                 try (var rs = statement.executeQuery()) {
                     if (rs.next()) {
-                        return readGame(rs);
+                        return readGameWithChessGame(rs);
                     }
                 }
             } catch (Exception e) {
@@ -58,15 +63,7 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
         return null;
     }
 
-    private Connection getConnection() throws SQLException, DataAccessException {
-        return DatabaseManager.getConnection();
-    }
-
-    private PreparedStatement prepareStatement(Connection conn, String statement) throws SQLException {
-        return conn.prepareStatement(statement);
-    }
-
-    private GameData readGame(ResultSet rs) throws SQLException {
+    private GameData readGameWithChessGame(ResultSet rs) throws SQLException {
         var gameID = rs.getInt("gameID");
         var whiteUsername = rs.getString("whiteUsername");
         var blackUsername = rs.getString("blackUsername");
@@ -78,15 +75,38 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
         return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
     }
 
+    private Connection getConnection() throws SQLException, DataAccessException {
+        return DatabaseManager.getConnection();
+    }
+
+    private PreparedStatement prepareStatement(Connection conn, String statement) throws SQLException {
+        return conn.prepareStatement(statement);
+    }
+
+    private GameRecord readGamesForListing(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("gameID");
+        var whiteUsername = rs.getString("whiteUsername");
+        var blackUsername = rs.getString("blackUsername");
+        var gameName = rs.getString("gameName");
+        var observersJson = rs.getString("observers");
+
+        List<String> observers = new ArrayList<>();
+        if (observersJson != null && !observersJson.isEmpty()) {
+            observers = new Gson().fromJson(observersJson, new TypeToken<List<String>>(){}.getType());
+        }
+
+        return new GameRecord(gameID, whiteUsername, blackUsername, gameName, observers);
+    }
+
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
-        var result = new ArrayList<GameData>();
+    public Collection<GameRecord> listGames() throws DataAccessException {
+        var result = new ArrayList<GameRecord>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM gameTable";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, observers FROM gameTable";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(readGame(rs));
+                        result.add(readGamesForListing(rs));
                     }
                 }
             }
@@ -105,8 +125,7 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
                     gameData.getWhiteUsername(),
                     gameData.getBlackUsername(),
                     gameData.getGameName(),
-                    gameJson,
-                    gameData.getGameID());
+                    gameJson);
         } catch (Exception e) {
             throw new DataAccessException(500, String.format("Unable to update game: %s", e.getMessage()));
         }
@@ -159,6 +178,56 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
     }
 
     @Override
+    public void addObserver(Integer gameID, String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            GameData game = getGame(gameID);
+            if (game == null) {
+                throw new DataAccessException(400, "Error: game not found");
+            }
+
+            List<String> observers = getObservers(gameID);
+            if (!observers.contains(username)) {
+                observers.add(username);
+            }
+
+            String observersJson = new Gson().toJson(observers);
+            String updateStatement = "UPDATE gameTable SET observers = ? WHERE gameID = ?";
+
+            try (var ps = conn.prepareStatement(updateStatement)) {
+                ps.setString(1, observersJson);
+                ps.setInt(2, gameID);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DataAccessException(500, "Error: failed to update game observers");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(500, String.format("Unable to add observer to game: %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public List<String> getObservers(Integer gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String query = "SELECT observers FROM gameTable WHERE gameID = ?";
+            try (var ps = conn.prepareStatement(query)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String observersJson = rs.getString("observers");
+                        if (observersJson != null && !observersJson.isEmpty()) {
+                            return new Gson().fromJson(observersJson, new TypeToken<List<String>>(){}.getType());
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(500, String.format("Unable to get observers for game: %s", e.getMessage()));
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
     public void clearGameData() throws DataAccessException {
         try {
             var statement = "TRUNCATE gameTable";
@@ -181,6 +250,21 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
         } catch (Exception e) {
             throw new DataAccessException(500, String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
+    }
+
+    private Integer executeInsert(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                executeUpdate(ps, params);
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(500, String.format("Unable to insert into database: %s, %s", statement, e.getMessage()));
+        }
+        return null;
     }
 
     static void executeUpdate(PreparedStatement ps, Object[] params) throws SQLException {
