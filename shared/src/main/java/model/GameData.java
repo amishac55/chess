@@ -25,12 +25,20 @@ public class GameData {
         this.chessGame=chessGame;
     }
 
-    public GameData(String gameName, Integer gameID){
-        this.gameID = gameID;
+    public GameData(String gameName){
+        this.gameID = null;
         this.whiteUsername=null;
         this.blackUsername=null;
         this.gameName=gameName;
         this.chessGame=new ChessGame();
+    }
+
+    public GameData(String gameName, ChessGame chessGame){
+        this.gameID = null;
+        this.whiteUsername=null;
+        this.blackUsername=null;
+        this.gameName=gameName;
+        this.chessGame=chessGame;
     }
 
     public String getBlackUsername() {
