@@ -2,11 +2,14 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import model.GameData;
+import model.GameRecord;
 import requests.CreateGameRequest;
 import requests.JoinGameRequest;
 import requests.MakeMoveRequest;
 import responses.CommonResponse;
 import responses.CreateGameResponse;
+import responses.GetGameResponse;
 import responses.ListGamesResponse;
 import service.GameService;
 import spark.Request;
@@ -34,13 +37,28 @@ public class GameHandler {
     public Object listGames(Request request, Response response) {
         String authToken = request.headers("authorization");
         try {
-            ArrayList<ListGamesResponse.GameRecord> games = new GameService().listGames(authToken);
+            ArrayList<GameRecord> games = new GameService().listGames(authToken);
             response.status(200);
             return GSON.toJson(new ListGamesResponse(games, null));
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
             response.body(e.getMessage());
             return GSON.toJson(new ListGamesResponse(null, "Error: " + e.getMessage()));
+        }
+    }
+
+    public Object getGame(Request request, Response response) {
+        String authToken = request.headers("authorization");
+        int gameID = Integer.parseInt(request.params("gameID"));
+
+        try {
+            GameData gameData = new GameService().getGame(gameID, authToken);
+            GetGameResponse getGameResponse = new GetGameResponse(gameData, null);
+            response.status(200);
+            return GSON.toJson(getGameResponse);
+        } catch (DataAccessException e) {
+            setErrorResponse(response, e);
+            return GSON.toJson(new GetGameResponse(null, e.getMessage()));
         }
     }
 
@@ -54,6 +72,20 @@ public class GameHandler {
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
             response.body(e.getMessage());
+            return GSON.toJson(new CommonResponse(e.getMessage()));
+        }
+    }
+
+    public Object observeGame(Request request, Response response) {
+        String authToken = request.headers("authorization");
+        int gameID = Integer.parseInt(request.params("gameID"));
+
+        try {
+            new GameService().observeGame(gameID, authToken);
+            response.status(200);
+            return GSON.toJson(new CommonResponse(null));
+        } catch (DataAccessException e) {
+            setErrorResponse(response, e);
             return GSON.toJson(new CommonResponse(e.getMessage()));
         }
     }

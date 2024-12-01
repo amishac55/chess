@@ -5,11 +5,8 @@ import dataaccess.DataAccessException;
 import dataaccess.idao.AuthDAO;
 import dataaccess.idao.GameDAO;
 import dataaccess.idao.UserDAO;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.*;
-import responses.ListGamesResponse;
 import utils.PlayerColor;
 
 import java.util.ArrayList;
@@ -96,7 +93,7 @@ class GameServiceTest {
         gameServiceToTest.createGame("pubg", validToken);
         gameServiceToTest.createGame("barbieDreamHouse", validToken);
 
-        ArrayList<ListGamesResponse.GameRecord> resultGameRecords = gameServiceToTest.listGames(validToken);
+        ArrayList<GameRecord> resultGameRecords = gameServiceToTest.listGames(validToken);
 
         assertEquals(2, resultGameRecords.size(), "Game record size should be 2");
         assertEquals("pubg", resultGameRecords.get(0).gameName());
