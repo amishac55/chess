@@ -180,30 +180,37 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
 
     @Override
     public void addObserver(Integer gameID, String username) throws DataAccessException {
-        try {
-            GameData game = getGame(gameID);
-            if (game == null) {
-                throw new DataAccessException(400, "Error: game not found");
-            }
+        try (var conn = DatabaseManager.getConnection()) {
+            GameData game = validateGameExists(gameID);
 
-            List<String> observers = getObservers(gameID);
-            if (observers.contains(username)) {
-                return;
-            }
+            List<String> observers = updateObserversList(gameID, username);
 
-            observers.add(username);
-            updateObservers(gameID, observers);
+            updateObserversInDatabase(conn, gameID, observers);
         } catch (SQLException e) {
             throw new DataAccessException(500, String.format("Unable to add observer to game: %s", e.getMessage()));
         }
     }
 
-    private void updateObservers(Integer gameID, List<String> observers) throws SQLException, DataAccessException {
+    private GameData validateGameExists(Integer gameID) throws DataAccessException {
+        GameData game = getGame(gameID);
+        if (game == null) {
+            throw new DataAccessException(400, "Error: game not found");
+        }
+        return game;
+    }
+
+    private List<String> updateObserversList(Integer gameID, String username) throws DataAccessException {
+        List<String> observers = getObservers(gameID);
+        if (!observers.contains(username)) {
+            observers.add(username);
+        }
+        return observers;
+    }
+
+    private void updateObserversInDatabase(Connection conn, Integer gameID, List<String> observers) throws SQLException, DataAccessException {
         String observersJson = new Gson().toJson(observers);
         String updateStatement = "UPDATE gameTable SET observers = ? WHERE gameID = ?";
-
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(updateStatement)) {
+        try (var ps = conn.prepareStatement(updateStatement)) {
             ps.setString(1, observersJson);
             ps.setInt(2, gameID);
             int rowsAffected = ps.executeUpdate();
@@ -212,6 +219,7 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
             }
         }
     }
+
 
     @Override
     public List<String> getObservers(Integer gameID) throws DataAccessException {
