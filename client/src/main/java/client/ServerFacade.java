@@ -113,7 +113,9 @@ public class ServerFacade {
     }
 
     private void sendRequest(HttpURLConnection connection, Object request) throws IOException {
-        if (request == null) return;
+        if (request == null) {
+            return;
+        }
 
         try (OutputStream outputStream = connection.getOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
@@ -125,7 +127,9 @@ public class ServerFacade {
     private <T> T processResponse(HttpURLConnection connection, Class<T> responseClass) throws IOException, ResponseException {
         validateResponse(connection);
 
-        if (responseClass == null) return null;
+        if (responseClass == null) {
+            return null;
+        }
 
         try (InputStream inputStream = connection.getInputStream();
              InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {

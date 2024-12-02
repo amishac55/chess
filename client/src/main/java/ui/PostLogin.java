@@ -131,7 +131,9 @@ public class PostLogin {
             return;
         }
         GameRecord joinGame = getGameRecord(input);
-        if (joinGame == null) return;
+        if (joinGame == null) {
+            return;
+        }
         PlayerColor color = input[2].equalsIgnoreCase("WHITE") ? PlayerColor.WHITE : PlayerColor.BLACK;
         JoinGameRequest joinGameRequest = new JoinGameRequest(color, joinGame.gameID());
         try {
@@ -156,7 +158,9 @@ public class PostLogin {
             return;
         }
         GameRecord observeGame = getGameRecord(input);
-        if (observeGame == null) return;
+        if (observeGame == null){
+            return;
+        }
         try {
             if (serverFacade.observeGame(observeGame.gameID())) {
                 out.println("You have joined the game as an observer");

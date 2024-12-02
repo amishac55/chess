@@ -29,7 +29,9 @@ public class ChessDisplay {
 
         for (int view = 0; view < viewCount; view++) {
             renderBoard(output, isReversed, selectedPos, validMoveSquares);
-            if (view < viewCount - 1) output.append("\n");
+            if (view < viewCount - 1) {
+                output.append("\n");
+            }
             isReversed = !isReversed;
         }
 
@@ -46,7 +48,9 @@ public class ChessDisplay {
     }
 
     private HashSet<ChessPosition> getValidMoveSquares(ChessPosition selectedPos) {
-        if (selectedPos == null) return new HashSet<>();
+        if (selectedPos == null) {
+            return new HashSet<>();
+        }
 
         Collection<ChessMove> validMoves = game.validMoves(selectedPos);
         HashSet<ChessPosition> validSquares = HashSet.newHashSet(validMoves.size());
@@ -115,7 +119,9 @@ public class ChessDisplay {
 
     private String renderPiece(int row, int column) {
         ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, column));
-        if (piece == null) return EMPTY_SQUARE;
+        if (piece == null){
+            return EMPTY_SQUARE;
+        }
 
         return piece.getTeamColor() == ChessGame.TeamColor.WHITE
                 ? renderWhitePiece(piece.getPieceType())
