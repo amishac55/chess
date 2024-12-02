@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import dataaccess.sqldao.SQLGameDAO;
 import model.GameData;
+import model.GameRecord;
 import org.junit.jupiter.api.*;
 import utils.PlayerColor;
 
@@ -42,12 +43,9 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void addGameNegativeDuplicateId() throws DataAccessException {
-        GameData game1 = new GameData(1, null, null, "Test Game 1", new ChessGame());
-        GameData game2 = new GameData(1, null, null, "Test Game 2", new ChessGame());
-
-        gameDAO.addGame(game1);
-        assertThrows(DataAccessException.class, () -> gameDAO.addGame(game2));
+    void addGameNegativeNullGameName() throws DataAccessException {
+        GameData game = new GameData(1, null, null, null, new ChessGame());
+        assertThrows(DataAccessException.class, () -> gameDAO.addGame(game));
     }
 
     @Test
@@ -75,36 +73,38 @@ class SQLGameDAOTest {
         gameDAO.addGame(game1);
         gameDAO.addGame(game2);
 
-        Collection<GameData> games = gameDAO.listGames();
+        Collection<GameRecord> games = gameDAO.listGames();
         assertEquals(2, games.size());
 
         // Convert collection to list for easier assertion
-        List<GameData> gamesList = new ArrayList<>(games);
+        List<GameRecord> gamesList = new ArrayList<>(games);
 
         // Verify first game
-        assertEquals(1, gamesList.get(0).getGameID());
-        assertEquals("Test Game 1", gamesList.get(0).getGameName());
-        assertNull(gamesList.get(0).getWhiteUsername());
-        assertNull(gamesList.get(0).getBlackUsername());
+        assertEquals(1, gamesList.get(0).gameID());
+        assertEquals("Test Game 1", gamesList.get(0).gameName());
+        assertNull(gamesList.get(0).whiteUsername());
+        assertNull(gamesList.get(0).blackUsername());
 
         // Verify second game
-        assertEquals(2, gamesList.get(1).getGameID());
-        assertEquals("Test Game 2", gamesList.get(1).getGameName());
-        assertEquals("whiteUser", gamesList.get(1).getWhiteUsername());
-        assertEquals("blackUser", gamesList.get(1).getBlackUsername());
+        assertEquals(2, gamesList.get(1).gameID());
+        assertEquals("Test Game 2", gamesList.get(1).gameName());
+        assertEquals("whiteUser", gamesList.get(1).whiteUsername());
+        assertEquals("blackUser", gamesList.get(1).blackUsername());
 
         // Verify that the games are in the correct order
-        assertEquals(1, gamesList.get(0).getGameID());
-        assertEquals(2, gamesList.get(1).getGameID());
+        assertEquals(1, gamesList.get(0).gameID());
+        assertEquals(2, gamesList.get(1).gameID());
 
         // Verify that the chess games are not null
-        assertNotNull(gamesList.get(0).getChessGame());
-        assertNotNull(gamesList.get(1).getChessGame());
+        GameData gameData1 = gameDAO.getGame(gamesList.get(0).gameID());
+        GameData gameData2 = gameDAO.getGame(gamesList.get(1).gameID());
+        assertNotNull(gameData1.getChessGame());
+        assertNotNull(gameData1.getChessGame());
     }
 
     @Test
     void listGamesNegativeEmptyDatabase() throws DataAccessException {
-        Collection<GameData> games = gameDAO.listGames();
+        Collection<GameRecord> games = gameDAO.listGames();
         assertTrue(games.isEmpty());
     }
 
