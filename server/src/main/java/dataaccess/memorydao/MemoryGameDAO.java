@@ -58,7 +58,8 @@ public class MemoryGameDAO implements dataaccess.idao.GameDAO {
             for (GameData game : gameDB.values()) {
                 Integer gameID = game.getGameID();
                 List<String> observers = observerDB.get(gameID);
-                GameRecord gameRecord = new GameRecord(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(), game.getGameName(), observers);
+                GameRecord gameRecord = new GameRecord(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(),
+                        game.getGameName(), observers);
                 gameRecords.add(gameRecord);
             }
         } catch (Exception e) {
