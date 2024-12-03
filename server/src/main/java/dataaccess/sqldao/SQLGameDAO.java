@@ -223,20 +223,21 @@ public class SQLGameDAO extends SQLBaseClass implements GameDAO {
 
     @Override
     public List<String> getObservers(Integer gameID) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            String query = "SELECT observers FROM gameTable WHERE gameID = ?";
-            try (var ps = conn.prepareStatement(query)) {
-                ps.setInt(1, gameID);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String observersJson = rs.getString("observers");
-                        if (observersJson != null && !observersJson.isEmpty()) {
-                            return new Gson().fromJson(observersJson, new TypeToken<List<String>>(){}.getType());
-                        }
+        try (
+                var conn = DatabaseManager.getConnection();
+                var ps = conn.prepareStatement("SELECT observers FROM gameTable WHERE gameID = ?");
+        ) {
+            ps.setInt(1, gameID);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String observersJson = rs.getString("observers");
+                    if (observersJson != null && !observersJson.isEmpty()) {
+                        return new Gson().fromJson(observersJson, new TypeToken<List<String>>() {}.getType());
                     }
                 }
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw new DataAccessException(500, String.format("Unable to get observers for game: %s", e.getMessage()));
         }
         return new ArrayList<>();
