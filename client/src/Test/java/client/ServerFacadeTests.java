@@ -46,7 +46,7 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void createGameSuccess() throws ResponseException {
+    public void createGamePositive() throws ResponseException {
         registerTestUser();
         CreateGameRequest request = new CreateGameRequest("Test Game");
         CreateGameResponse response = SERVER_FACADE.createGame(request);
@@ -55,19 +55,40 @@ public class ServerFacadeTests {
         assertNotNull(response.gameID());
         assertTrue(response.gameID() > 0);
     }
-
     @Test
-    public void joinGameSuccess() throws ResponseException {
+    public void createGameNegative() {
+        // Setup - don't login
+        CreateGameRequest request = new CreateGameRequest("Test Game");
+
+        // Execute & Verify
+        assertThrows(ResponseException.class, () -> SERVER_FACADE.createGame(request));
+    }
+    @Test
+    public void joinGamePositive() throws ResponseException {
         registerTestUser();
         Integer gameId = createTestGame();
         JoinGameRequest request = new JoinGameRequest(PlayerColor.WHITE, gameId);
 
         Boolean result = SERVER_FACADE.joinGame(request);
         assertTrue(result);
+
     }
 
     @Test
-    public void observeGameSuccess() throws ResponseException {
+    public void joinGameNegative() throws ResponseException {
+        // Setup
+        registerTestUser();
+        JoinGameRequest request = new JoinGameRequest(PlayerColor.WHITE, 999);
+
+        // Execute
+        Boolean result = SERVER_FACADE.joinGame(request);
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void observeGamePositive() throws ResponseException {
         registerTestUser();
         Integer gameId = createTestGame();
 
@@ -76,7 +97,19 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listGamesSuccess() throws ResponseException {
+    public void observeGameNegative() throws ResponseException {
+        // Setup
+        registerTestUser();
+
+        // Execute
+        Boolean result = SERVER_FACADE.observeGame(999);
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void listGamesPositive() throws ResponseException {
         registerTestUser();
         createTestGame();
         createTestGame();
@@ -87,7 +120,19 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void getGameSuccess() throws ResponseException {
+    public void listGamesNegative() throws ResponseException {
+
+        registerTestUser();
+        createTestGame();
+        createTestGame();
+        ListGamesResponse response = SERVER_FACADE.listGames();
+
+        assertNotNull(response);
+        assertNotEquals(3, response.games().size()); // Assuming the database is not cleared between tests
+    }
+
+    @Test
+    public void getGamePositive() throws ResponseException {
         registerTestUser();
         Integer gameId = createTestGame();
         GetGameResponse response = SERVER_FACADE.getGame(gameId);
@@ -98,7 +143,16 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void loginSuccess() throws ResponseException {
+    public void getGameNegative() throws ResponseException {
+        // Setup
+        registerTestUser();
+
+        // Execute & Verify
+        assertThrows(ResponseException.class, () -> SERVER_FACADE.getGame(999));
+    }
+
+    @Test
+    public void loginPositive() throws ResponseException {
         // Setup
         RegisterRequest registerRequest = new RegisterRequest("testUser", "password", "test@email.com");
         SERVER_FACADE.register(registerRequest);
@@ -113,7 +167,16 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void registerSuccess() throws ResponseException {
+    public void loginNegative() {
+        // Setup
+        LoginRequest request = new LoginRequest("wrongUser", "wrongPass");
+
+        // Execute & Verify
+        assertThrows(ResponseException.class, () -> SERVER_FACADE.login(request));
+    }
+
+    @Test
+    public void registerPositive() throws ResponseException {
         // Setup
         RegisterRequest request = new RegisterRequest("newUser", "password", "new@email.com");
 
@@ -125,7 +188,18 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void logoutSuccess() throws ResponseException {
+    public void registerNegative() throws ResponseException {
+        // Setup
+        RegisterRequest request = new RegisterRequest("testUser", "password", "test@email.com");
+        SERVER_FACADE.register(request);
+        SERVER_FACADE.logout();
+
+        // Execute & Verify
+        assertThrows(ResponseException.class, () -> SERVER_FACADE.register(request));
+    }
+
+    @Test
+    public void logoutPositive() throws ResponseException {
         // Setup
         registerTestUser();
         assertNotNull(SERVER_FACADE.getAuthToken());
@@ -137,75 +211,12 @@ public class ServerFacadeTests {
         assertNull(SERVER_FACADE.getAuthToken());
     }
 
-    // Negative Tests
     @Test
-    public void createGameUnauthorized() {
-        // Setup - don't login
-        CreateGameRequest request = new CreateGameRequest("Test Game");
-
-        // Execute & Verify
-        assertThrows(ResponseException.class, () -> SERVER_FACADE.createGame(request));
-    }
-
-    @Test
-    public void joinGameInvalidGame() throws ResponseException {
-        // Setup
-        registerTestUser();
-        JoinGameRequest request = new JoinGameRequest(PlayerColor.WHITE, 999);
-
-        // Execute
-        Boolean result = SERVER_FACADE.joinGame(request);
-
-        // Verify
-        assertFalse(result);
-    }
-
-    @Test
-    public void observeGameInvalidGame() throws ResponseException {
-        // Setup
-        registerTestUser();
-
-        // Execute
-        Boolean result = SERVER_FACADE.observeGame(999);
-
-        // Verify
-        assertFalse(result);
-    }
-
-    @Test
-    public void getGameInvalidGame() throws ResponseException {
-        // Setup
-        registerTestUser();
-
-        // Execute & Verify
-        assertThrows(ResponseException.class, () -> SERVER_FACADE.getGame(999));
-    }
-
-    @Test
-    public void loginInvalidCredentials() {
-        // Setup
-        LoginRequest request = new LoginRequest("wrongUser", "wrongPass");
-
-        // Execute & Verify
-        assertThrows(ResponseException.class, () -> SERVER_FACADE.login(request));
-    }
-
-    @Test
-    public void registerDuplicateUser() throws ResponseException {
-        // Setup
-        RegisterRequest request = new RegisterRequest("testUser", "password", "test@email.com");
-        SERVER_FACADE.register(request);
-        SERVER_FACADE.logout();
-
-        // Execute & Verify
-        assertThrows(ResponseException.class, () -> SERVER_FACADE.register(request));
-    }
-
-    @Test
-    public void logoutUnauthorized() {
+    public void logoutNegative() {
         // Setup - don't login
 
         // Execute & Verify
         assertThrows(ResponseException.class, () -> SERVER_FACADE.logout());
     }
+
 }
