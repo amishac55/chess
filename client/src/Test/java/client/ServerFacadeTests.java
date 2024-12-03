@@ -12,6 +12,8 @@ import responses.ListGamesResponse;
 import server.Server;
 import utils.PlayerColor;
 
+import static client.TestUtils.createTestGame;
+import static client.TestUtils.registerTestUser;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -205,17 +207,5 @@ public class ServerFacadeTests {
 
         // Execute & Verify
         assertThrows(ResponseException.class, () -> SERVER_FACADE.logout());
-    }
-
-    // Helper Methods
-    private void registerTestUser() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("testUser", "password", "test@email.com");
-        SERVER_FACADE.register(request);
-    }
-
-    private Integer createTestGame() throws ResponseException {
-        CreateGameRequest request = new CreateGameRequest("Test Game");
-        CreateGameResponse response = SERVER_FACADE.createGame(request);
-        return response.gameID();
     }
 }
