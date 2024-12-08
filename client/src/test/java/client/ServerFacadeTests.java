@@ -11,21 +11,19 @@ import responses.GetGameResponse;
 import responses.ListGamesResponse;
 import server.Server;
 import utils.PlayerColor;
-
-import static client.TestUtils.createTestGame;
-import static client.TestUtils.registerTestUser;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
-    private static final ServerFacade SERVER_FACADE = ServerFacade.getInstance();
+    private static ServerFacade SERVER_FACADE;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
+        SERVER_FACADE = ServerFacade.getInstance("http://localhost:"+port);
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -217,6 +215,17 @@ public class ServerFacadeTests {
 
         // Execute & Verify
         assertThrows(ResponseException.class, () -> SERVER_FACADE.logout());
+    }
+
+    public static void registerTestUser() throws ResponseException {
+        RegisterRequest request = new RegisterRequest("testUser", "password", "test@email.com");
+        SERVER_FACADE.register(request);
+    }
+
+    public static Integer createTestGame() throws ResponseException {
+        CreateGameRequest request = new CreateGameRequest("Test Game");
+        CreateGameResponse response = SERVER_FACADE.createGame(request);
+        return response.gameID();
     }
 
 }
